@@ -3,179 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ทะเลสีฟ้า · Blue Sea</title>
-    <style>
-        /* รีเซ็ตค่าเริ่มต้นและตั้งค่าฟอนต์ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(145deg, #e0f2fe 0%, #bae6fd 100%);
-            color: #0c4a6e;
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1.5rem;
-        }
-
-        .card {
-            max-width: 1100px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(8px);
-            border-radius: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        /* ส่วนหัว */
-        .hero {
-            padding: 2.5rem 2rem 1.5rem;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            color: #075985;
-            margin-bottom: 0.5rem;
-        }
-
-        .hero h1 span {
-            display: inline-block;
-            transform: translateY(4px);
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: #0369a1;
-            max-width: 600px;
-            margin: 0 auto;
-            font-weight: 300;
-        }
-
-        /* กริดรูปภาพ */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.25rem;
-            padding: 1rem 2rem 2rem;
-        }
-
-        .gallery-item {
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background: #fff;
-            aspect-ratio: 4 / 3;
-        }
-
-        .gallery-item:hover {
-            transform: scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: filter 0.3s;
-        }
-
-        .gallery-item:hover img {
-            filter: brightness(1.05) saturate(1.1);
-        }
-
-        /* ส่วนท้าย */
-        .footer {
-            text-align: center;
-            padding: 1.5rem 2rem 2rem;
-            font-size: 0.9rem;
-            color: #0c4a6e;
-            border-top: 1px solid rgba(12, 74, 110, 0.1);
-            margin-top: 0.5rem;
-        }
-
-        .footer a {
-            color: #0284c7;
-            text-decoration: none;
-            font-weight: 500;
-            border-bottom: 1px dotted #0284c7;
-        }
-
-        .footer a:hover {
-            color: #0c4a6e;
-            border-bottom-style: solid;
-        }
-
-        /* การปรับขนาดหน้าจอเล็ก */
-        @media (max-width: 600px) {
-            body { padding: 0.75rem; }
-            .hero h1 { font-size: 2rem; }
-            .hero p { font-size: 1rem; }
-            .gallery { padding: 0.75rem 1rem 1.5rem; gap: 1rem; }
-            .card { border-radius: 1.5rem; }
-        }
-    </style>
+    <title>ระบบสั่งพิมพ์สลิป</title>
 </head>
 <body>
-    <div class="card">
-        <!-- ส่วนหัวข้อ -->
-        <div class="hero">
-            <h1>🌊 <span>ทะเล</span> 🌊</h1>
-            <p>ความกว้างใหญ่ที่เงียบสงบ · คลื่นลมและแสงแดด</p>
-        </div>
 
-        <!-- แกลเลอรีรูปภาพ (ดึงจาก Unsplash ฟรี) -->
-        <div class="gallery">
-            <!-- รูปที่ 1: คลื่นทะเล -->
-            <div class="gallery-item">
-                <img 
-                    src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=800&auto=format&fit=crop" 
-                    alt="คลื่นทะเลสีฟ้า"
-                    loading="lazy"
-                >
-            </div>
-            <!-- รูปที่ 2: ชายหาดทรายขาว -->
-            <div class="gallery-item">
-                <img 
-                    src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop" 
-                    alt="ชายหาดทรายขาวและน้ำทะเลใส"
-                    loading="lazy"
-                >
-            </div>
-            <!-- รูปที่ 3: พระอาทิตย์ตกทะเล -->
-            <div class="gallery-item">
-                <img 
-                    src="https://images.unsplash.com/photo-1509233725247-49e657c54213?q=80&w=800&auto=format&fit=crop" 
-                    alt="พระอาทิตย์ตกดินเหนือทะเล"
-                    loading="lazy"
-                >
-            </div>
-            <!-- รูปที่ 4: ผิวน้ำทะเล -->
-            <div class="gallery-item">
-                <img 
-                    src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=800&auto=format&fit=crop" 
-                    alt="พื้นผิวน้ำทะเลสีฟ้า"
-                    loading="lazy"
-                >
-            </div>
-        </div>
+    <h1>หน้าจอขายหน้าร้าน</h1>
+    
+    <!-- สร้างปุ่มสำหรับกดสั่งพิมพ์ -->
+    <button id="printBtn" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+        🖨️ พิมพ์ใบเสร็จ
+    </button>
 
-        <!-- เครดิต -->
-        <div class="footer">
-            รูปภาพทั้งหมดจัดหาโดย <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a> · ใช้งานฟรี
-        </div>
-    </div>
+    <script>
+        // 1. ระบุ IP ของคอมพิวเตอร์ที่เปิดรัน Node.js Server เอาไว้ (ห้ามใช้ localhost)
+        const SERVER_IP = '192.168.1.73'; // ⚠️ เปลี่ยนเป็นเลข IPv4 ของคอมพิวเตอร์คุณจริงๆ
+        const PRINT_URL = `http://${SERVER_IP}:3000/api/print`;
+
+        // 2. จับเหตุการณ์เมื่อผู้ใช้คลิกปุ่ม
+        document.getElementById('printBtn').addEventListener('click', () => {
+            
+            // ข้อความที่จะส่งไปพิมพ์
+            const receiptData = {
+                text: "--- ใบเสร็จรับเงิน ---\nร้านค้าตัวอย่าง\nวันที่: 19 ต.ค. 2026\n\nรายการสินค้า:\n- กาแฟสดอเมริกาโน่ x1  60 บ.\n- ชาเขียวนมสด   x1  65 บ.\n\nรวมทั้งสิ้น: 125 บาท\n--- ขอบคุณที่อุดหนุน ---"
+            };
+
+            // 3. ส่งคำสั่ง Fetch API ไปยัง Node.js Server ในวง Wi-Fi
+            fetch(PRINT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(receiptData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('เครือข่ายตอบกลับไม่ถูกต้อง');
+                }
+                return response.json();
+            })
+            .then(result => {
+                alert('สั่งพิมพ์ใบเสร็จสำเร็จ!');
+                console.log('ข้อมูลจากเซิร์ฟเวอร์:', result);
+            })
+            .catch(error => {
+                alert('พิมพ์ล้มเหลว! กรุณาเช็กว่าคอมพิวเตอร์เปิด Server หรือยัง และอยู่ใน Wi-Fi เดียวกันไหม');
+                console.error('เกิดข้อผิดพลาด:', error);
+            });
+        });
+    </script>
+
 </body>
 </html>
