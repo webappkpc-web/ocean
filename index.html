@@ -18,7 +18,7 @@
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
     
     <div id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
-    <div id="version">เวอร์ชั่น 19.15</div>
+    <div id="version">เวอร์ชั่น 19.25</div>
 
     <script>
 
@@ -49,8 +49,8 @@
         versionDiv.style.color = "gray";
 
         // 1. ฟังก์ชันเชื่อมต่อ Bluetooth
-connectBtn.addEventListener('click', async () => {
-    statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
+        connectBtn.addEventListener('click', async () => {
+        statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
     try {
         // กำหนดรหัส UUID สำหรับรุ่น BLE (แก้จุดที่ 1)
         const BLE_SERVICE_UUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455'; 
@@ -111,7 +111,13 @@ connectBtn.addEventListener('click', async () => {
 
                 // ส่งข้อมูลไปยังเครื่องพิมพ์
                 await printCharacteristic.writeValue(combinedData);
-                statusDiv.innerText = "พิมพ์เสร็จสิ้น!";
+                
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const timeString = `${hours}:${minutes}:${seconds}`;
+                
+                statusDiv.innerText = `พิมพ์สำเร็จ: ${timeString}`;
                 statusDiv.style.color = "green";
 
             } catch (error) {
