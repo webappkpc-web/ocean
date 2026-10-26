@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth 1134</h1>
+    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth 1137</h1>
     
     <button id="connectBtn">1. ค้นหาและเชื่อมต่อเครื่องพิมพ์</button>
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
@@ -36,7 +36,7 @@
                 // เครื่องพิมพ์สลิปส่วนใหญ่มักใช้ Service UUID: 00001101-0000-1000-8000-00805f9b34fb
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
                     filters: [{ namePrefix: 'POS' }], // เปลี่ยนเป็นชื่อที่ตรงกับเครื่องพิมพ์ของคุณ
-                    optionalServices: ['49535343-fe7d-4ae5-8fa9-9fafd205e455'] 
+                    optionalServices: ['0000e1ff-0000-1000-8000-00805f9b34fb']
                 });
 
 
