@@ -3,54 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสั่งพิมพ์สลิป</title>
+    <title>Bluetooth POS Printer Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        button { padding: 15px 25px; font-size: 16px; margin: 10px; cursor: pointer; }
+        #status { margin-top: 20px; font-weight: bold; color: blue; }
+    </style>
 </head>
 <body>
 
-    <h1>หน้าจอขายหน้าร้าน</h1>
+    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth</h1>
     
-    <!-- สร้างปุ่มสำหรับกดสั่งพิมพ์ -->
-    <button id="printBtn" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
-        🖨️ พิมพ์ใบเสร็จ
-    </button>
+    <button id="connectBtn">1. ค้นหาและเชื่อมต่อเครื่องพิมพ์</button>
+    <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
+    
+    <div id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
 
     <script>
-        // 1. ระบุ IP ของคอมพิวเตอร์ที่เปิดรัน Node.js Server เอาไว้ (ห้ามใช้ localhost)
-        const SERVER_IP = '192.168.1.73'; // ⚠️ เปลี่ยนเป็นเลข IPv4 ของคอมพิวเตอร์คุณจริงๆ
-        const PRINT_URL = `http://${SERVER_IP}:3000/api/print`;
+        // กำหนดตัวแปรสำหรับเก็บค่าอุปกรณ์และท่อส่งข้อมูล
+        let bluetoothDevice = null;
+        let printCharacteristic = null;
 
-        // 2. จับเหตุการณ์เมื่อผู้ใช้คลิกปุ่ม
-        document.getElementById('printBtn').addEventListener('click', () => {
-            
-            // ข้อความที่จะส่งไปพิมพ์
-            const receiptData = {
-                text: "--- ใบเสร็จรับเงิน ---\nร้านค้าตัวอย่าง\nวันที่: 19 ต.ค. 2026\n\nรายการสินค้า:\n- กาแฟสดอเมริกาโน่ x1  60 บ.\n- ชาเขียวนมสด   x1  65 บ.\n\nรวมทั้งสิ้น: 125 บาท\n--- ขอบคุณที่อุดหนุน ---"
-            };
+        const connectBtn = document.getElementById('connectBtn');
+        const printBtn = document.getElementById('printBtn');
+        const statusDiv = document.getElementById('status');
 
-            // 3. ส่งคำสั่ง Fetch API ไปยัง Node.js Server ในวง Wi-Fi
-            fetch(PRINT_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(receiptData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('เครือข่ายตอบกลับไม่ถูกต้อง');
+        // 1. ฟังก์ชันเชื่อมต่อ Bluetooth
+        connectBtn.addEventListener('click', async () => {
+            statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
+            try {
+                // ค้นหาอุปกรณ์ Bluetooth ที่รองรับบริการรับส่งข้อมูลทั่วไป (SPP / Serial Port Profile)
+                // เครื่องพิมพ์สลิปส่วนใหญ่มักใช้ Service UUID: 00001101-0000-1000-8000-00805f9b34fb
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: '' }], // ค้นหาทั้งหมด หรือใส่ชื่อเครื่องพิมพ์เช่น [{ name: 'RPP02N' }]
+                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] 
+                });
+
+                statusDiv.innerText = `กำลังเชื่อมต่อกับ: ${bluetoothDevice.name}...`;
+
+                // เชื่อมต่อเข้า GATT Server
+                const server = await bluetoothDevice.gatt.connect();
+
+                // เข้าถึง Service 
+                const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+
+                // ค้นหา Characteristic สำหรับเขียนข้อมูล (Write)
+                const characteristics = await service.getCharacteristics();
+                
+                // เลือก Characteristic แรกที่มีคุณสมบัติ Write หรือ WriteWithoutResponse
+                printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+
+                if (printCharacteristic) {
+                    statusDiv.innerText = `เชื่อมต่อสำเร็จ: ${bluetoothDevice.name}`;
+                    statusDiv.style.color = "green";
+                    printBtn.disabled = false; // เปิดให้กดปุ่มพิมพ์ได้
+                } else {
+                    statusDiv.innerText = "ข้อผิดพลาด: ไม่พบช่องทางส่งข้อมูล (Characteristic)";
+                    statusDiv.style.color = "red";
                 }
-                return response.json();
-            })
-            .then(result => {
-                alert('สั่งพิมพ์ใบเสร็จสำเร็จ!');
-                console.log('ข้อมูลจากเซิร์ฟเวอร์:', result);
-            })
-            .catch(error => {
-                alert('พิมพ์ล้มเหลว! กรุณาเช็กว่าคอมพิวเตอร์เปิด Server หรือยัง และอยู่ใน Wi-Fi เดียวกันไหม');
-                console.error('เกิดข้อผิดพลาด:', error);
-            });
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.innerText = `เกิดข้อผิดพลาด: ${error.message}`;
+                statusDiv.style.color = "red";
+            }
+        });
+
+        // 2. ฟังก์ชันสั่งพิมพ์ข้อมูล
+        printBtn.addEventListener('click', async () => {
+            if (!printCharacteristic) return;
+
+            statusDiv.innerText = "กำลังส่งข้อมูลพิมพ์...";
+
+            try {
+                // สร้างคำสั่ง ESC/POS เบื้องต้นด้วยพาสเวิร์ด (Byte Array)
+                const encoder = new TextEncoder('tis-620'); // ใช้ TIS-620 สำหรับภาษาไทยบนเครื่องพิมพ์สลิปทั่วไป
+                
+                // เตรียมข้อมูลชุดคำสั่งควบคุม (เทียบเท่าสคริปต์ Python ของคุณ)
+                const initCmd = new Uint8Array([0x1b, 0x40]); // ESC @ (Initialize Printer)
+                const textData = encoder.encode("ครัวจันทรเพ็ญ\nต้มยำรวมมิตร 120.-\n\n\n\n"); // ข้อความพิมพ์
+                const cutCmd = new Uint8Array([0x1d, 0x56, 0x00]); // GS V 0 (ตัดกระดาษ)
+
+                // รวมข้อมูลทั้งหมดเข้าด้วยกันก่อนส่ง
+                const combinedData = new Uint8Array(initCmd.length + textData.length + cutCmd.length);
+                combinedData.set(initCmd, 0);
+                combinedData.set(textData, initCmd.length);
+                combinedData.set(cutCmd, initCmd.length + textData.length);
+
+                // ส่งข้อมูลไปยังเครื่องพิมพ์
+                await printCharacteristic.writeValue(combinedData);
+                statusDiv.innerText = "พิมพ์เสร็จสิ้น!";
+                statusDiv.style.color = "green";
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.innerText = `พิมพ์ล้มเหลว: ${error.message}`;
+                statusDiv.style.color = "red";
+            }
         });
     </script>
-
 </body>
 </html>
