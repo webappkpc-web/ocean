@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth 1137</h1>
+    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth 1141</h1>
     
     <button id="connectBtn">1. ค้นหาและเชื่อมต่อเครื่องพิมพ์</button>
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
@@ -29,46 +29,44 @@
         const statusDiv = document.getElementById('status');
 
         // 1. ฟังก์ชันเชื่อมต่อ Bluetooth
-        connectBtn.addEventListener('click', async () => {
-            statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
-            try {
-                // ค้นหาอุปกรณ์ Bluetooth ที่รองรับบริการรับส่งข้อมูลทั่วไป (SPP / Serial Port Profile)
-                // เครื่องพิมพ์สลิปส่วนใหญ่มักใช้ Service UUID: 00001101-0000-1000-8000-00805f9b34fb
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ namePrefix: 'POS' }], // เปลี่ยนเป็นชื่อที่ตรงกับเครื่องพิมพ์ของคุณ
-                    optionalServices: ['0000e1ff-0000-1000-8000-00805f9b34fb']
-                });
+connectBtn.addEventListener('click', async () => {
+    statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
+    try {
+        // กำหนดรหัส UUID สำหรับรุ่น BLE (แก้จุดที่ 1)
+        const BLE_SERVICE_UUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455'; 
+        // 💡 หมายเหตุ: ถ้าพิมพ์แล้วเงียบ ให้ลองเปลี่ยนเป็น '0000e1ff-0000-1000-8000-00805f9b34fb' ดูอีกทีครับ
 
-
-                statusDiv.innerText = `กำลังเชื่อมต่อกับ: ${bluetoothDevice.name}...`;
-
-                // เชื่อมต่อเข้า GATT Server
-                const server = await bluetoothDevice.gatt.connect();
-
-                // เข้าถึง Service 
-                const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-
-                // ค้นหา Characteristic สำหรับเขียนข้อมูล (Write)
-                const characteristics = await service.getCharacteristics();
-                
-                // เลือก Characteristic แรกที่มีคุณสมบัติ Write หรือ WriteWithoutResponse
-                printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
-
-                if (printCharacteristic) {
-                    statusDiv.innerText = `เชื่อมต่อสำเร็จ: ${bluetoothDevice.name}`;
-                    statusDiv.style.color = "green";
-                    printBtn.disabled = false; // เปิดให้กดปุ่มพิมพ์ได้
-                } else {
-                    statusDiv.innerText = "ข้อผิดพลาด: ไม่พบช่องทางส่งข้อมูล (Characteristic)";
-                    statusDiv.style.color = "red";
-                }
-
-            } catch (error) {
-                console.error(error);
-                statusDiv.innerText = `เกิดข้อผิดพลาด: ${error.message}`;
-                statusDiv.style.color = "red";
-            }
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: 'POS' }], 
+            optionalServices: [BLE_SERVICE_UUID] // <-- แก้จุดที่ 1 ส่งไปให้บราวเซอร์รู้จัก
         });
+
+        statusDiv.innerText = `กำลังเชื่อมต่อกับ: ${bluetoothDevice.name}...`;
+
+        const server = await bluetoothDevice.gatt.connect();
+
+        // เข้าถึง Service โดยใช้รหัส BLE เดียวกัน (แก้จุดที่ 2)
+        const service = await server.getPrimaryService(BLE_SERVICE_UUID); // <-- แก้จุดที่ 2 
+
+        const characteristics = await service.getCharacteristics();
+        printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+
+        if (printCharacteristic) {
+            statusDiv.innerText = `เชื่อมต่อสำเร็จ: ${bluetoothDevice.name}`;
+            statusDiv.style.color = "green";
+            printBtn.disabled = false;
+        } else {
+            statusDiv.innerText = "ข้อผิดพลาด: ไม่พบช่องทางส่งข้อมูล (Characteristic)";
+            statusDiv.style.color = "red";
+        }
+
+    } catch (error) {
+        console.error(error);
+        statusDiv.innerText = `เกิดข้อผิดพลาด: ${error.message}`;
+        statusDiv.style.color = "red";
+    }
+});
+
 
         // 2. ฟังก์ชันสั่งพิมพ์ข้อมูล
         printBtn.addEventListener('click', async () => {
