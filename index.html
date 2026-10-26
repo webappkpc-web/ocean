@@ -35,9 +35,10 @@
                 // ค้นหาอุปกรณ์ Bluetooth ที่รองรับบริการรับส่งข้อมูลทั่วไป (SPP / Serial Port Profile)
                 // เครื่องพิมพ์สลิปส่วนใหญ่มักใช้ Service UUID: 00001101-0000-1000-8000-00805f9b34fb
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ namePrefix: '' }], // ค้นหาทั้งหมด หรือใส่ชื่อเครื่องพิมพ์เช่น [{ name: 'RPP02N' }]
-                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] 
+                    filters: [{ namePrefix: 'POS-8390' }], // เปลี่ยนเป็นชื่อที่ตรงกับเครื่องพิมพ์ของคุณ
+                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb']
                 });
+
 
                 statusDiv.innerText = `กำลังเชื่อมต่อกับ: ${bluetoothDevice.name}...`;
 
