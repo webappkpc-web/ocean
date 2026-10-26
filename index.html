@@ -36,7 +36,7 @@
                 // เครื่องพิมพ์สลิปส่วนใหญ่มักใช้ Service UUID: 00001101-0000-1000-8000-00805f9b34fb
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
                     filters: [{ namePrefix: 'POS' }], // เปลี่ยนเป็นชื่อที่ตรงกับเครื่องพิมพ์ของคุณ
-                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb']
+                    optionalServices: ['49535343-fe7d-4ae5-8fa9-9fafd205e455'] 
                 });
 
 
