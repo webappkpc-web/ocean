@@ -12,12 +12,13 @@
 </head>
 <body>
 
-    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth<br>Succesfully via Web & Moblie(ผ่านกูเกิลเลนส์/โครม)</h1>
+    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth</h1><h3>Succesfully via Web & Moblie(ผ่านกูเกิลเลนส์/โครม)</h3>
     
     <button id="connectBtn">1. ค้นหาและเชื่อมต่อเครื่องพิมพ์</button>
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
     
     <div id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
+    <div id="version">เวอร์ชั่น 19.15</div>
 
     <script>
 
@@ -42,6 +43,10 @@
         const connectBtn = document.getElementById('connectBtn');
         const printBtn = document.getElementById('printBtn');
         const statusDiv = document.getElementById('status');
+        const versionDiv = document.getElementById('version');
+
+        statusDiv.style.color = "gray";
+        versionDiv.style.color = "gray";
 
         // 1. ฟังก์ชันเชื่อมต่อ Bluetooth
 connectBtn.addEventListener('click', async () => {
@@ -95,7 +100,7 @@ connectBtn.addEventListener('click', async () => {
                 
                 // เตรียมข้อมูลชุดคำสั่งควบคุม (เทียบเท่าสคริปต์ Python ของคุณ)
                 const initCmd = new Uint8Array([0x1b, 0x40]); // ESC @ (Initialize Printer)
-                const textData = encoder.encode("ครัวจันทรเพ็ญ\nต้มยำรวมมิตร 120.-\n\n\n\n"); // ข้อความพิมพ์
+                const textData = encoder.encode("ต้มยำรวมมิตร 120.-\n\n\n"); // ข้อความพิมพ์
                 const cutCmd = new Uint8Array([0x1d, 0x56, 0x00]); // GS V 0 (ตัดกระดาษ)
 
                 // รวมข้อมูลทั้งหมดเข้าด้วยกันก่อนส่ง
