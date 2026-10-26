@@ -18,7 +18,7 @@
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
     
     <div id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
-    <div id="version">เวอร์ชั่น 19.37</div>
+    <div id="version">เวอร์ชั่น 19.40</div>
 
     <script>
 
@@ -103,7 +103,7 @@ printBtn.addEventListener('click', async () => {
         // 2. คำสั่งสลับสิทธิ์ตารางอักษร (Code Page) เป็นภาษาไทย
         // [0x1c, 0x2e] = ปิดโหมดภาษาจีน (FS .) สำคัญมากสำหรับเครื่องชิปจีน
         // [0x1b, 0x74, 0x1a] = ESC t 26 เปลี่ยนตารางอักษรเป็นภาษาไทย (รหัส 26 หรือ 0x1a)
-        const thaiModeCmd = new Uint8Array([0x1c, 0x2e, 0x1b, 0x74, 0x3a]); 
+        const thaiModeCmd = new Uint8Array([0x1c, 0x2e, 0x1b, 0x74, 0x1c]); 
         
         // 3. เตรียมข้อความและคำสั่งตัดกระดาษ
         const textData = encoder.encode("ครัวจันทรเพ็ญ\nต้มยำรวมมิตร 120.-\n\n\n\n");
