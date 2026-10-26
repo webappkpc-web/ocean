@@ -18,7 +18,7 @@
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
     
     <div id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
-    <div id="version">เวอร์ชั่น 19.25</div>
+    <div id="version">เวอร์ชั่น 19.30</div>
 
     <script>
 
@@ -48,9 +48,20 @@
         statusDiv.style.color = "gray";
         versionDiv.style.color = "gray";
 
+
+          const now = new Date();
+  
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const timeString = `${hours}:${minutes}:${seconds}`;
+
+
+    versionDiv.innerText = `version: ${timeString}`;
+
         // 1. ฟังก์ชันเชื่อมต่อ Bluetooth
-        connectBtn.addEventListener('click', async () => {
-        statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
+connectBtn.addEventListener('click', async () => {
+    statusDiv.innerText = "กำลังค้นหาอุปกรณ์...";
     try {
         // กำหนดรหัส UUID สำหรับรุ่น BLE (แก้จุดที่ 1)
         const BLE_SERVICE_UUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455'; 
@@ -89,43 +100,49 @@
 
 
         // 2. ฟังก์ชันสั่งพิมพ์ข้อมูล
-        printBtn.addEventListener('click', async () => {
-            if (!printCharacteristic) return;
+printBtn.addEventListener('click', async () => {
+    if (!printCharacteristic) return;
 
-            statusDiv.innerText = "กำลังส่งข้อมูลพิมพ์...";
+    statusDiv.innerText = "กำลังส่งข้อมูลพิมพ์...";
 
-            try {
-                // สร้างคำสั่ง ESC/POS เบื้องต้นด้วยพาสเวิร์ด (Byte Array)
-                const encoder = new TextEncoder('tis-620'); // ใช้ TIS-620 สำหรับภาษาไทยบนเครื่องพิมพ์สลิปทั่วไป
-                
-                // เตรียมข้อมูลชุดคำสั่งควบคุม (เทียบเท่าสคริปต์ Python ของคุณ)
-                const initCmd = new Uint8Array([0x1b, 0x40]); // ESC @ (Initialize Printer)
-                const textData = encoder.encode("ต้มยำรวมมิตร 120.-\n\n\n"); // ข้อความพิมพ์
-                const cutCmd = new Uint8Array([0x1d, 0x56, 0x00]); // GS V 0 (ตัดกระดาษ)
+    try {
+        const encoder = new TextEncoder('tis-620'); // เข้ารหัสภาษาไทยตามปกติ
+        
+        // 1. คำสั่งควบคุมหลัก
+        const initCmd = new Uint8Array([0x1b, 0x40]);      // ESC @ (Initialize Printer)
+        
+        // 2. คำสั่งสลับสิทธิ์ตารางอักษร (Code Page) เป็นภาษาไทย
+        // [0x1c, 0x2e] = ปิดโหมดภาษาจีน (FS .) สำคัญมากสำหรับเครื่องชิปจีน
+        // [0x1b, 0x74, 0x1a] = ESC t 26 เปลี่ยนตารางอักษรเป็นภาษาไทย (รหัส 26 หรือ 0x1a)
+        const thaiModeCmd = new Uint8Array([0x1c, 0x2e, 0x1b, 0x74, 0x1a]); 
+        
+        // 3. เตรียมข้อความและคำสั่งตัดกระดาษ
+        const textData = encoder.encode("ครัวจันทรเพ็ญ\nต้มยำรวมมิตร 120.-\n\n\n\n");
+        const cutCmd = new Uint8Array([0x1d, 0x56, 0x00]); // GS V 0 (ตัดกระดาษ)
 
-                // รวมข้อมูลทั้งหมดเข้าด้วยกันก่อนส่ง
-                const combinedData = new Uint8Array(initCmd.length + textData.length + cutCmd.length);
-                combinedData.set(initCmd, 0);
-                combinedData.set(textData, initCmd.length);
-                combinedData.set(cutCmd, initCmd.length + textData.length);
+        // 4. รวมข้อมูลทั้งหมด (เพิ่ม thaiModeCmd เข้าไปในลำดับ)
+        const combinedData = new Uint8Array(
+            initCmd.length + thaiModeCmd.length + textData.length + cutCmd.length
+        );
+        
+        let offset = 0;
+        combinedData.set(initCmd, offset); offset += initCmd.length;
+        combinedData.set(thaiModeCmd, offset); offset += thaiModeCmd.length;
+        combinedData.set(textData, offset); offset += textData.length;
+        combinedData.set(cutCmd, offset);
 
-                // ส่งข้อมูลไปยังเครื่องพิมพ์
-                await printCharacteristic.writeValue(combinedData);
-                
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const timeString = `${hours}:${minutes}:${seconds}`;
-                
-                statusDiv.innerText = `พิมพ์สำเร็จ: ${timeString}`;
-                statusDiv.style.color = "green";
+        // ส่งข้อมูลไปยังเครื่องพิมพ์
+        await printCharacteristic.writeValue(combinedData);
+        statusDiv.innerText = "พิมพ์ภาษาไทยสำเร็จ!";
+        statusDiv.style.color = "green";
 
-            } catch (error) {
-                console.error(error);
-                statusDiv.innerText = `พิมพ์ล้มเหลว: ${error.message}`;
-                statusDiv.style.color = "red";
-            }
-        });
+    } catch (error) {
+        console.error(error);
+        statusDiv.innerText = `พิมพ์ล้มเหลว: ${error.message}`;
+        statusDiv.style.color = "red";
+    }
+});
+
     </script>
 </body>
 </html>
