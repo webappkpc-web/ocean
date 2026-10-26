@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth 1141</h1>
+    <h1>ทดสอบพิมพ์สลิปผ่าน Web Bluetooth 1153</h1>
     
     <button id="connectBtn">1. ค้นหาและเชื่อมต่อเครื่องพิมพ์</button>
     <button id="printBtn" disabled>2. สั่งพิมพ์ข้อความทดสอบ</button>
@@ -20,6 +20,21 @@
     <div id="status">สถานะ: ยังไม่ได้เชื่อมต่อ</div>
 
     <script>
+
+        // ตรวจสอบตั้งแต่ตอนโหลดหน้าเว็บว่าเครื่องรองรับบลูทูธหรือไม่
+        if (!navigator.bluetooth) {
+            let reason = "บราวเซอร์ของคุณไม่รองรับ Web Bluetooth";
+            
+            // เช็กว่าเกิดจากไม่ได้ใช้ HTTPS หรือไม่
+            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+                reason += " (เนื่องจากคุณไม่ได้ใช้งานผ่านโปรโตคอล HTTPS)";
+            }
+            
+            statusDiv.innerText = `⚠️ ข้อจำกัด: ${reason}`;
+            statusDiv.style.color = "orange";
+            connectBtn.disabled = true; // ปิดปุ่มกดค้นหาไปเลย
+        }
+
         // กำหนดตัวแปรสำหรับเก็บค่าอุปกรณ์และท่อส่งข้อมูล
         let bluetoothDevice = null;
         let printCharacteristic = null;
